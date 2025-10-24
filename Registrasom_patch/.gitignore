@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+env/
+.venv/
+*.sqlite3
+*.db
+
+# Node
+node_modules/
+dist/
+.parcel-cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
