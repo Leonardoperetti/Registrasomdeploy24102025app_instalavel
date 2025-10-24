@@ -23,7 +23,7 @@ from utils.pdf_generator import generate_transcription_pdf
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
-app = Flask(__name__, static_folder="../frontend/dist", static_url_path="/")
+app = Flask(__name__, static_folder="static", static_url_path="/")
 
 
 # Pasta de uploads (garante caminho absoluto)
