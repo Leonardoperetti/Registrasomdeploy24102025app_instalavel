@@ -1,6 +1,7 @@
 import os
 from flask import Flask, request, jsonify, send_from_directory, send_file
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
 import os
 import sys
@@ -41,7 +42,7 @@ file_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelnam
 app.logger.addHandler(file_handler)
 
 
-app.config["SECRET_KEY"] = "registrasom_secret_key_2024_secure"
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev_key_change_in_production")
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10MB max file size
 
 # Configurar CORS
@@ -60,16 +61,16 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(20), nullable=True)
     age = db.Column(db.Integer, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password):
-        """Hash simples da senha usando hashlib"""
-        self.password_hash = hashlib.sha256(password.encode()).hexdigest()
+        """Hash da senha usando Werkzeug com salt"""
+        self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         """Verifica se a senha está correta"""
-        return self.password_hash == hashlib.sha256(password.encode()).hexdigest()
+        return check_password_hash(self.password_hash, password)
 
     def to_dict(self):
         return {
