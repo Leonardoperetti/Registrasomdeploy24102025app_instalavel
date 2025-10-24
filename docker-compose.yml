@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./app/backend
+      dockerfile: Dockerfile
+    container_name: registrasom_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app/backend/src:/app/backend/src
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FLASK_ENV=production
+    restart: always
+
+  frontend:
+    build:
+      context: ./app/frontend
+      dockerfile: Dockerfile
+    container_name: registrasom_frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./app/frontend/src:/app/frontend/src
+    depends_on:
+      - backend
+    restart: always
