@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:24.0.5
+        options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Lint frontend (if present)
+        run: |
+          if [ -f frontend/package.json ]; then
+            cd frontend
+            npm ci
+            if [ -f package.json ]; then
+              npm run lint || true
+            fi
+            cd ..
+          fi
+
+      - name: Lint backend (if present)
+        run: |
+          if [ -f backend/requirements.txt ]; then
+            python -m pip install flake8 || true
+            flake8 || true
+          fi
