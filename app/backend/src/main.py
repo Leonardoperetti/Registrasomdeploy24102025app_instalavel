@@ -552,30 +552,6 @@ def delete_music_registration(current_user, reg_id):
         app.logger.error("Erro ao excluir registro de música: %s", traceback.format_exc())
         return jsonify({"error": "Erro interno do servidor"}), 500
 
-
-
-
-
-
-# Criar tabelas
-with app.app_context():
-    db.create_all()
-
-@app.route("/", defaults={"path": ""})
-@app.route("/<path:path>")
-def serve_frontend(path):
-    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
-        return send_from_directory(app.static_folder, path)
-    else:
-        return send_from_directory(app.static_folder, "index.html")
-
-if __name__ == "__main__":
-
-    app.run(host="0.0.0.0", port=5000, debug=False)
-
-
-
-
 @app.route("/api/audio/<int:audio_id>/stream", methods=["GET"])
 def stream_audio(audio_id):
     """Serve o arquivo de áudio para o player."""
@@ -584,8 +560,6 @@ def stream_audio(audio_id):
         if not audio:
             return jsonify({"error": "Áudio não encontrado"}), 404
 
-        # Usar send_from_directory para servir o arquivo
-        # O UPLOAD_FOLDER é o diretório raiz. O audio.filename é o nome do arquivo.
         return send_from_directory(UPLOAD_FOLDER, audio.filename, as_attachment=False)
 
     except Exception as e:
@@ -603,7 +577,6 @@ def download_audio(current_user, audio_id):
         if not audio:
             return jsonify({"error": "Áudio não encontrado"}), 404
 
-        # Usar send_from_directory para servir o arquivo para download
         return send_from_directory(UPLOAD_FOLDER, audio.filename, as_attachment=True, download_name=audio.original_filename)
 
     except Exception as e:
@@ -621,7 +594,6 @@ def get_transcription(current_user, audio_id):
         if not audio:
             return jsonify({"error": "Áudio não encontrado"}), 404
 
-        # Se a transcrição ainda não foi gerada, tenta gerá-la
         if not audio.transcription:
             filepath = os.path.join(UPLOAD_FOLDER, audio.filename)
             if os.path.exists(filepath):
@@ -630,7 +602,6 @@ def get_transcription(current_user, audio_id):
                     audio.transcription = transcription_text
                     db.session.commit()
                 else:
-                    # Retorna None para que o frontend mostre "Carregando..." ou uma mensagem de erro
                     return jsonify({"transcription": None}), 200
             else:
                  return jsonify({"error": "Arquivo de áudio não encontrado para transcrição"}), 404
@@ -642,3 +613,19 @@ def get_transcription(current_user, audio_id):
         app.logger.error(f"Erro ao buscar transcrição: {traceback.format_exc()}")
         return jsonify({"error": "Erro interno do servidor"}), 500
 
+
+
+# Criar tabelas
+with app.app_context():
+    db.create_all()
+
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve_frontend(path):
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, "index.html")
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=False)

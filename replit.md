@@ -84,10 +84,12 @@ The Flask server is configured as a workflow and starts automatically. It serves
   - Fixed Flask static folder path to serve pre-built frontend
   - Created workflow for Flask server on port 5000
   - Added .gitignore for Python and Node.js
+  - **Bug fixes**:
+    - Fixed audio streaming and transcription routes placement (moved before `if __name__ == "__main__"`)
   - **Security enhancements**:
     - Replaced hard-coded SECRET_KEY with environment variable
     - Upgraded password hashing from SHA256 to Werkzeug's PBKDF2 with salt
-    - Implemented backward-compatible migration for legacy password hashes
+    - Implemented backward-compatible migration for legacy password hashes with try/except for ValueError
     - Configured gunicorn for production deployment
 
 ## Deployment Notes
