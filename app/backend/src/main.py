@@ -69,8 +69,19 @@ class User(db.Model):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
-        """Verifica se a senha está correta"""
-        return check_password_hash(self.password_hash, password)
+        """Verifica se a senha está correta e migra hashes legados"""
+        try:
+            if check_password_hash(self.password_hash, password):
+                return True
+        except ValueError:
+            pass
+        
+        legacy_hash = hashlib.sha256(password.encode()).hexdigest()
+        if self.password_hash == legacy_hash:
+            self.set_password(password)
+            db.session.commit()
+            return True
+        return False
 
     def to_dict(self):
         return {

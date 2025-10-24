@@ -48,6 +48,7 @@ RegistraSom is a professional audio analysis platform that automatically detects
 
 ### Environment Variables
 - `OPENAI_API_KEY`: Required for audio transcription feature
+- `SECRET_KEY`: Required for secure JWT token generation and session management
 
 ### Ports
 - **Port 5000**: Flask server (serves both API and frontend)
@@ -77,12 +78,17 @@ The Flask server is configured as a workflow and starts automatically. It serves
 - `GET /api/music-registration` - List registrations (authenticated)
 
 ## Recent Changes
-- **2025-10-24**: Initial Replit setup
+- **2025-10-24**: Initial Replit setup and security improvements
   - Installed Python 3.11 and all dependencies
-  - Configured OPENAI_API_KEY from Replit Secrets
+  - Configured OPENAI_API_KEY and SECRET_KEY from Replit Secrets
   - Fixed Flask static folder path to serve pre-built frontend
   - Created workflow for Flask server on port 5000
   - Added .gitignore for Python and Node.js
+  - **Security enhancements**:
+    - Replaced hard-coded SECRET_KEY with environment variable
+    - Upgraded password hashing from SHA256 to Werkzeug's PBKDF2 with salt
+    - Implemented backward-compatible migration for legacy password hashes
+    - Configured gunicorn for production deployment
 
 ## Deployment Notes
 - The application uses a development Flask server for local testing
